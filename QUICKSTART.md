@@ -39,13 +39,23 @@ The AI gets clean context. You get focused execution.
 
 ### Step 4: Review the PR
 
-Before merging, ask Claude to review its own work:
+This is where you make sure you don't ship slop. Multiple rounds of review between you and Claude ensure quality—without requiring you to read every line of code.
 
-> "Review this PR draft and provide feedback. Be critical."
+**The workflow:**
 
-Address the feedback, then merge. If the PR touches anything non-trivial, I'll also run it by a human engineer—but the AI review catches 80% of issues.
+1. **Simplify the code.** Run [`/simplify-code`](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) to clean up and simplify the implementation. This skill refines the code for clarity, consistency, and maintainability before anyone sees it.
 
-**Automated PR Review**: I also use [Greptile](https://app.greptile.com/signup?ref=NTM3MTUtMzY3OTU=) to automatically review every PR when I open it. What makes it valuable is that it generates architecture diagrams and data flowcharts for each PR—so I can *see* how the code changes flow through the system. This visual layer helps me catch issues that text-based review might miss and reinforces the [Comprehensible Code](./frameworks/01-comprehensible-code.md) principle: if you can't visualize it, you might not fully understand it.
+2. **Open a draft PR.** Create a draft pull request—not ready for merge yet.
+
+3. **Run code review.** Invoke [`/code-review`](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) on the draft. This launches 4 parallel review agents that independently audit your changes from different angles: compliance with project guidelines, obvious bugs, and historical context. Each issue gets a confidence score, and only high-confidence issues (80+) surface.
+
+4. **Assess and address feedback.** Review the issues Claude found. Ask Claude to address the relevant feedback—not everything will apply, but the high-confidence issues usually do.
+
+5. **Open the PR.** Convert from draft to open. After multiple rounds of review, this should be easy for anyone to merge.
+
+**Why this works:** I'm not reading every line of code anymore—but I maintain an understanding of the high-level architecture. The multi-round review process (simplify → review → address → review again) catches the details. My job is understanding how features fit into the system, not parsing syntax.
+
+**Visual verification**: I also use [Greptile](https://app.greptile.com/signup?ref=NTM3MTUtMzY3OTU=) to automatically review PRs when I open them. It generates architecture diagrams and data flowcharts for each PR—so I can *see* how code changes flow through the system. This visual layer reinforces the [Comprehensible Code](./frameworks/01-comprehensible-code.md) principle at the architecture level.
 
 ---
 
