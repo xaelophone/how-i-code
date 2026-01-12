@@ -13,6 +13,9 @@ A practical guide for non-technical people who want to ship code with AI.
 ### [QUICKSTART.md](./QUICKSTART.md)
 The core 4-step workflow: Plan → Issues → Implement → Review. Start here.
 
+### [Default Tech Stack](./tech-stack.md)
+My go-to technologies for shipping apps: Next.js, React, Supabase, Tailwind, TypeScript, Vercel.
+
 ### Frameworks
 Deep dives into the mental models that make AI coding work:
 
