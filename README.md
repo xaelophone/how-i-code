@@ -16,6 +16,9 @@ The core 4-step workflow: Plan → Issues → Implement → Review. Start here.
 ### [Default Tech Stack](./tech-stack.md)
 My go-to technologies for shipping apps: Next.js, React, Supabase, Tailwind, TypeScript, Vercel.
 
+### [Updates](./UPDATES.md)
+A log of how my coding practices are evolving over time.
+
 ### Frameworks
 Deep dives into the mental models that make AI coding work:
 
