@@ -17,13 +17,16 @@ Then edit to add the narrative paragraph explaining the "why" behind the change.
 
 **Added two-layer context management: strategic + tactical**
 
-I was building my own TUI for the [Ralph workflow](https://ghuntley.com/ralph/) when I discovered [ralph-tui](https://github.com/subsy/ralph-tui). Rather than reinvent the wheel, I integrated the best ideas into my existing GitHub Issues workflow. The result is a two-layer approach:
+I built a lightweight implementation of the [Ralph workflow](https://ghuntley.com/ralph/) ([ralph-setup](https://github.com/xaelophone/ralph-setup)) to understand how it works. In the process, I realized Ralph's local-file approach to context engineering and code execution is complementary to my existing GitHub Issues workflow.
+
+The result is a two-layer approach:
 
 - **Strategic layer** (GitHub Issues): Team visibility, stakeholder access, provenance trail
 - **Tactical layer** (PRD.md + progress.txt): Granular task tracking, automatic context recovery
 
 GitHub Issues remain the source of truth for planning, but local files give Claude the granular context it needs for implementation. Tools like `ralph-gh` bridge the two—syncing issue content to PRD.md and posting progress summaries back as comments.
 
+If you don't want to use my implementation, [ralph-tui](https://github.com/subsy/ralph-tui) by Subsy is a great full-featured TUI alternative.
 **Files changed:** `QUICKSTART.md`, `frameworks/02-context-engineering.md`
 
 ---

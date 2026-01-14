@@ -62,7 +62,7 @@ The workflow becomes:
 3. Claude works, logs to **progress.txt**
 4. Summarize phase → post comment on **Issue**
 
-This lets you keep the benefits of GitHub (visibility, provenance, PR linking) while adding local files for the granular execution Claude needs. Tools like [ralph-gh](https://github.com/xaelophone/ralph-setup) can bridge the two automatically.
+This lets you keep the benefits of GitHub (visibility, provenance, PR linking) while adding local files for the granular execution Claude needs. I built a tool called [ralph-gh](https://github.com/xaelophone/ralph-setup) that can bridge the two automatically.
 
 ## The Provenance Loop
 
