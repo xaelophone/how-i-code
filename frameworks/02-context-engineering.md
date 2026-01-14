@@ -35,6 +35,35 @@ GitHub Issues are better because:
 
 By November, this became my standard practice. I implemented 14 new features while *deleting* 6,000+ lines of code. That was only possible because I started treating git as the source of truth for context engineering.
 
+## The Two-Layer Approach
+
+I've since refined this into two complementary layers:
+
+| Layer | Where | Purpose |
+|-------|-------|---------|
+| **Strategic** | GitHub Issues | Team visibility, stakeholder access, cross-project planning, provenance trail |
+| **Tactical** | Local files (PRD.md + progress.txt) | Within-session task tracking, context recovery, granular progress |
+
+**Strategic layer (GitHub Issues):**
+- High-level feature planning
+- "What are we building this week?"
+- Comments preserve planned → actual → learned
+- Visible to team and stakeholders
+
+**Tactical layer (PRD.md + progress.txt):**
+- Granular 15-30 minute tasks
+- "What's Claude working on right now?"
+- Automatic context injection on session resume
+- Claude reads these directly (no API needed)
+
+The workflow becomes:
+1. Plan feature → externalize to **GitHub Issue**
+2. Break issue into atomic tasks → **PRD.md**
+3. Claude works, logs to **progress.txt**
+4. Summarize phase → post comment on **Issue**
+
+This lets you keep the benefits of GitHub (visibility, provenance, PR linking) while adding local files for the granular execution Claude needs. Tools like [ralph-gh](https://github.com/xaelophone/ralph-setup) can bridge the two automatically.
+
 ## The Provenance Loop
 
 At the end of each implementation session, ask Claude:

@@ -37,6 +37,21 @@ Your planning session filled the context window with brainstorming, dead ends, a
 
 The AI gets clean context. You get focused execution.
 
+**Optional: Add a tactical layer.** For complex features, add local tracking files:
+
+```bash
+# In your project directory
+setup-ralph              # Creates CLAUDE.md + progress.txt
+ralph-gh link 42         # Link to your GitHub Issue
+ralph-gh sync            # Generate PRD.md from issue
+```
+
+This gives you:
+- **PRD.md** — Atomic 15-30 min tasks broken down from the issue
+- **progress.txt** — Timestamped log of what Claude completed
+
+When context fills mid-implementation, Claude can read these files to resume exactly where it left off. See [Context Engineering](./frameworks/02-context-engineering.md) for the full two-layer approach.
+
 ### Step 4: Review the PR
 
 This is where you make sure you don't ship slop. Multiple rounds of review between you and Claude ensure quality—without requiring you to read every line of code.
