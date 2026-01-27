@@ -13,6 +13,20 @@ Then edit to add the narrative paragraph explaining the "why" behind the change.
 
 ---
 
+## January 27, 2026
+
+**Revised GPT-5.2 High assessment: trepidation as power**
+
+My early impression of GPT 5.2 was skeptical—its personality felt confrontational. After extended use, I've reversed course. The friction I felt was actually thoroughness. GPT-5.2 High explores the codebase more deeply than previous GPT-5 iterations, surfaces second-order effects in multi-file changes, and keeps going until done.
+
+This changes how I use it. GPT-5.2 High is now viable for end-to-end implementation, not just review—particularly for tasks where thoroughness matters more than speed. The complete loop (codebase research → plan writing → agentic coding → code validation) is now a real option.
+
+Key guidance: use High reasoning level minimum (Medium makes Opus 4.5 the better choice), standard GPT-5.2 over the Codex variant, and always in Codex CLI or VS Code extension.
+
+**Files changed:** `models/gpt-5-x.md`, `models/README.md`
+
+---
+
 ## January 14, 2026
 
 **Added two-layer context management: strategic + tactical**

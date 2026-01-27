@@ -28,7 +28,7 @@ Different models excel at different things. The goal isn't to find the "best" mo
 | Model | Best For | My Rating |
 |-------|----------|-----------|
 | [Claude Opus 4.5](./claude-opus-4-5.md) | Everything—planning, implementation, review (my daily driver) | ⭐⭐⭐⭐⭐ |
-| [GPT 5.X](./gpt-5-x.md) | Deep context gathering, code review, strict second opinions | ⭐⭐⭐⭐ |
+| [GPT 5.X](./gpt-5-x.md) | Deep context gathering, code review, end-to-end workflows (when thoroughness > speed) | ⭐⭐⭐⭐ |
 | [Gemini 3.0](./gemini-3-0.md) | Front-end design, asset generation (best in AntiGravity) | ⭐⭐⭐ |
 
 ---
