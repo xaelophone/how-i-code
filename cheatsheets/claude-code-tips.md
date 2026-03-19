@@ -8,11 +8,11 @@ Quick reference for Claude Code workflows and settings.
 
 | Task | Model | Why |
 |------|-------|-----|
-| Planning | Opus 4.5 | Best reasoning, handles ambiguity |
-| Implementation | Opus 4.5 | Less context degradation |
-| Review | Opus 4.5 | Catches subtle issues |
+| Planning | Opus 4.6 (1M) | Best reasoning, 1M context handles extended exploration |
+| Implementation | Opus 4.6 (1M) | Autonomous in DSP mode, less context degradation |
+| Review | GPT-5.4 High via Codex MCP | Structured delegation, catches what Claude misses |
 
-**Bottom line**: Use Opus 4.5 for everything. The quality difference justifies the cost.
+**Bottom line**: Opus 4.6 for everything except code review, which goes to GPT-5.4 via delegation.
 
 ---
 
@@ -20,53 +20,103 @@ Quick reference for Claude Code workflows and settings.
 
 | Setting | Value | Why |
 |---------|-------|-----|
-| Output mode | **Explanatory** | See Claude's reasoning—helps you learn |
-| Plan mode | Use for all features | Separates thinking from doing |
+| DSP mode | **Enabled by default** | Autonomous execution—alias `claude` to start in `--dangerously-skip-permissions` mode |
+| Output mode | **Explanatory** | See Claude's reasoning—helps you learn during interviews |
+| Always Thinking | **Enabled** | Deep reasoning on every response |
+| Workflow | **Standard mode + interview** | Explore codebase, Claude interviews you, then plans sequential PRs |
 
 ---
 
-## Editor Integration
+## Terminal-First Workflow
 
-**Run Claude Code inside Cursor** for the best of both worlds:
+I run Claude Code standalone in the terminal. The 1M context window and autonomous execution model mean I spend less time watching changes in an editor and more time reviewing PRs after the fact.
 
-| Cursor Feature | How It Helps |
-|----------------|--------------|
-| **File tree** | Browse and open files visually while Claude works |
-| **Diff viewer** | See exactly what Claude changed with syntax-highlighted diffs |
-| **[Tab](https://cursor.com/docs/tab/overview)** | Quick in-line edits when you want to "break formation" |
-| **[Debug Mode](https://cursor.com/blog/debug-mode)** | Focused debugging workflow that augments Claude's diagnostic abilities |
-| **[Visual Editor](https://cursor.com/blog/browser-visual-editor)** | UI iteration in Cursor Browser that pairs well with Claude's implementation |
-
-**Setup**: Open your project in Cursor, then launch Claude Code from the integrated terminal.
-
-**Why this combo works**: Claude Code is powerful but terminal-only. Cursor provides the visual context—file structure, syntax highlighting, change tracking—that makes it easier to follow along, verify changes, and catch issues before they ship.
+The review happens at the PR level (GPT code review, CI checks, diff inspection) — not at the file-edit level.
 
 ---
 
 ## The Core Loop
 
 ```
-1. Plan (voice) → 2. GitHub Issues → 3. New context → 4. Implement → 5. Review
+1. Explore & Interview → 2. Plan (plans/) → 3. Autonomous loop per PR → 4. Ship & clean up
 ```
 
 See [QUICKSTART.md](../QUICKSTART.md) for details.
 
 ---
 
+## Memory System
+
+Claude Code maintains persistent context across sessions:
+
+- **MEMORY.md**: Architecture decisions, gotchas, learned patterns. Claude updates these automatically. When you start a new session, Claude already knows what it learned last time.
+- **CLAUDE.md**: Project-level instructions at the repo root. Claude reads this on every session start. Use it for project conventions, commands, and rules.
+
+These create a "third brain" — persistent context you don't manage manually.
+
+---
+
+## Plugin Ecosystem
+
+Plugins auto-inject domain knowledge when you touch relevant files:
+
+| Plugin | What It Does |
+|--------|--------------|
+| **Vercel** | Injects deployment, Next.js, and AI SDK documentation |
+| **Supabase** | Database, auth, and storage guidance |
+| **Compound Engineering** | Code review, workflow automation, parallel processing |
+| **Stripe** | Payment integration patterns |
+| **Playwright** | Browser automation and testing |
+
+**Skills** like `/simplify` and code review carry domain-specific knowledge and multi-step workflows. You invoke them by name.
+
+This is **ambient context** — Claude gets relevant documentation without you providing it.
+
+---
+
+## GPT Delegation via Codex MCP
+
+After Claude implements and runs `/simplify`, delegate to GPT-5.4 for code review:
+
+The delegation uses five expert roles:
+- **Architect** — system design, tradeoff analysis
+- **Code Reviewer** — code quality, bugs, security (most common)
+- **Plan Reviewer** — validates plans before execution
+- **Scope Analyst** — catches requirement ambiguities
+- **Security Analyst** — vulnerabilities, threat modeling
+
+Each role operates in **advisory mode** (read-only analysis) or **implementation mode** (make changes directly).
+
+---
+
+## Autonomous Mode
+
+DSP mode (`--dangerously-skip-permissions`) enables multi-PR autonomous execution:
+
+- **Plans directory**: `plans/` (gitignored) stores the PR sequence and autonomous instructions
+- **The loop**: implement → `/simplify` → draft PR → GPT review → fix → open PR → CI → update plan → next PR
+- **Human intervention points**: the initial interview, reviewing GPT's findings, merge decisions
+
+**When to use**: Multi-PR projects where you've completed the interview phase and trust the plan.
+
+**When not to use**: Exploratory debugging, unfamiliar codebases, first-time experiments.
+
+---
+
 ## Context Management
 
 **Do:**
-- Clear context after completing each task
-- Start implementation in a fresh chat
-- Externalize plans to GitHub Issues before resetting
-- Post implementation summaries as Issue comments
+- Clear context between projects (not between tasks within a project)
+- Let the plan doc anchor long sessions
+- Trust persistent memory (MEMORY.md) for cross-session knowledge
+- Externalize decisions to GitHub Issue comments or the plan doc
 
 **Don't:**
-- Implement multiple features in one context
-- Let planning conversation pollute implementation
-- Continue indefinitely without clearing
+- Mix unrelated projects in one session
+- Ignore GPT's review findings without considering them
+- Keep plan docs after projects ship — delete them
 
-**Rule of thumb**: If the context has 50+ messages, you've probably gone too long.
+**Rule of thumb**: If you're crossing project boundaries in one session, start fresh.
 
 ---
 
@@ -74,12 +124,12 @@ See [QUICKSTART.md](../QUICKSTART.md) for details.
 
 **Tool**: WisprFlow (or similar)
 
-**Why voice for planning?**
+**Why voice for the interview phase?**
 - Typing forces pre-editing
 - Voice externalizes raw, messy thoughts
-- Claude structures your ideas for you
+- Claude structures your answers into the plan
 
-**Pattern**: Dictate your idea stream-of-consciousness, end with "ask me any clarifying questions."
+**Pattern**: Answer Claude's interview questions stream-of-consciousness. Let it organize your thoughts.
 
 ---
 
@@ -116,15 +166,15 @@ I keep doing [process] manually. Can you turn this into a reusable skill I can i
 
 ## Provenance Tracking
 
-At the end of each implementation:
+After each PR merges:
 
 ```
-Summarize what we implemented. Note:
+Update the plan doc with what actually shipped. Note:
 - What was planned vs. what was built
 - Any divergences and why
-- What we learned
+- Context the next PR needs
 
-Format as a comment for the GitHub Issue.
+After the project completes, post a summary on the GitHub Issue.
 ```
 
 This creates a trail: planned → actual → learned.
@@ -135,11 +185,11 @@ This creates a trail: planned → actual → learned.
 
 | Signal | Problem | Fix |
 |--------|---------|-----|
-| Can't explain the code | You're accumulating slop | Ask for explanation before shipping |
-| 50+ messages in context | Context degradation | Clear and restart |
-| AI referencing old ideas | Stale context | Externalize plan, reset |
-| PR touches many things | Scope creep | Break into atomic PRs |
-| "This might break things" | Too much bundled | Ship smaller |
+| Can't explain the code | You're accumulating slop | Ask for bilingual explanation (developer + end-user) |
+| Crossing project boundaries | Context pollution | Clear and start fresh session |
+| AI referencing old ideas | Stale context | Check the plan doc is current, consider restarting |
+| PR touches many things | Scope creep | Break into atomic PRs per the plan |
+| Claude stopped following the plan | Plan doc unclear or context drifted | Restart session with explicit plan reference |
 
 ---
 
@@ -147,12 +197,12 @@ This creates a trail: planned → actual → learned.
 
 | Action | What to Say |
 |--------|-------------|
-| Enter plan mode | "Let's plan this feature..." |
-| Exit plan mode | "I'm happy with this plan. Create the GitHub Issues." |
-| Start implementation | "Implement Issue #X" |
-| Request review | "Review this PR. Be critical." |
+| Start a project | "Explore the codebase for [goal], then interview me" |
+| Break into PRs | "Break this into sequential PRs in the plans/ directory" |
+| Start implementation | "Work autonomously through the plan, starting with PR 1" |
+| Request GPT review | Invoke Codex MCP delegation with Code Reviewer role |
+| Explain a bug | "Explain this from both a developer and end-user perspective" |
 | Clear context | Start a new chat |
-| Learn from code | "Explain this so I can write similar code myself" |
 
 ---
 

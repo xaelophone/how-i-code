@@ -38,6 +38,19 @@ This applies beyond code:
 - **Network requests**: "Walk me through what's happening in this API call."
 - **Error messages**: "What is this error actually saying, and what are the common causes?"
 
+## Bilingual Explanations
+
+When Claude explains bugs or system problems, I instruct it to frame the explanation from two perspectives:
+
+1. **Developer view**: What broke in the system, what the root cause is, what the fix involves
+2. **End-user view**: What the customer would experience, how it affects their workflow
+
+The prompt pattern:
+
+> "Explain this bug using non-technical language. Frame it from two perspectives: (1) what's happening in the system from a developer's view, and (2) what an end user would experience if this shipped."
+
+This connects back to the heritage speaker analogy. You're building comprehension at the system level, and the end-user perspective grounds that understanding in real impact. When you can explain a bug in terms of what a customer would see, you actually understand the system—not just the code.
+
 ## The Heritage Speaker Analogy
 
 Think of it like being a "heritage speaker" of a programming language. Heritage speakers grew up hearing a language at home—they understand it fluently, can follow conversations, and can express themselves, but they might not have formal grammar training.

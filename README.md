@@ -49,8 +49,8 @@ Real-world notes on AI models for coding—updated as new models drop:
 
 | Model | Best For |
 |-------|----------|
-| [Claude Opus 4.5](./models/claude-opus-4-5.md) | Everything—my daily driver |
-| [GPT 5.X](./models/gpt-5-x.md) | Deep context gathering, strict code review |
+| [Claude Opus 4.6 (1M)](./models/claude-opus-4-6.md) | Everything—my daily driver, autonomous long-running tasks |
+| [GPT 5.4](./models/gpt-5-x.md) | Formalized code review, deep context gathering |
 | [Gemini 3.0](./models/gemini-3-0.md) | Front-end design, asset generation |
 
 ---

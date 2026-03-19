@@ -35,7 +35,7 @@ Gemini works best inside AntiGravity (Google's code editor/IDE). The integration
 ## Weaknesses
 
 **Not a Generalist**
-Gemini is not my first choice for anything outside front-end and asset generation. It doesn't have the all-around capability of Opus or the analytical depth of GPT 5.1.
+Gemini is not my first choice for anything outside front-end and asset generation. It doesn't have the all-around capability of Opus or the analytical depth of GPT 5.4.
 
 **Quirky Personality**
 The personality is... weird. Not in a charming or fun way—just odd. It doesn't feel like a natural thought partner.
@@ -81,8 +81,8 @@ It's a specialist, not a daily driver.
 
 | Compared To | Verdict |
 |-------------|---------|
-| Claude Opus 4.5 | Opus is the better generalist. Gemini has better front-end design instincts but is less versatile. |
-| GPT 5.1 | Both have cleaner design aesthetics than Claude. GPT is better for analysis; Gemini for visual work. |
+| Claude Opus 4.6 | Opus is the far better generalist. Gemini has better front-end design instincts but is less versatile. |
+| GPT 5.4 | Both have cleaner design aesthetics than Claude. GPT is better for analysis; Gemini for visual work. |
 
 ---
 

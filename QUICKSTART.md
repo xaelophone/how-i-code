@@ -1,99 +1,108 @@
-# The 4-Step Workflow for Coding with AI
+# The Workflow for Coding with AI
 
-This is the core loop I use every day. It's simple, but the separation of concerns is what makes it work.
+This is the core loop I use every day. For multi-PR projects, it runs autonomously. For single features, it's a lighter version of the same principles.
 
-## The Loop
+## The Autonomous Pipeline
 
-### Step 1: Plan with Voice
+For any project that spans more than one PR, this is the workflow:
 
-Enter Claude Code's **Plan mode** and dictate your feature idea using voice (I use [WisprFlow](https://wisprflow.ai/r?SEAN55)). End every planning prompt with:
+### Step 1: Explore & Interview
 
-> "Ask me any clarifying questions you might have."
+Start Claude in **standard mode** (not plan mode) and describe your project:
 
-This forces the AI to surface assumptions before you've wasted tokens on the wrong solution. Talk through your idea like you're explaining it to a smart colleague who doesn't have context.
+> "I want to build [project]. Explore the codebase to understand the current landscape, then interview me about subgoals, design decisions, and anything ambiguous."
 
-**Why voice?** Planning is thinking. Typing forces you to pre-edit your thoughts. Voice lets you externalize messy ideas, and the AI will help you structure them.
+Claude will:
+1. Read through your codebase to understand the existing architecture
+2. Reverse-prompt you — asking about implementation preferences, design constraints, scope boundaries
+3. Surface assumptions before any code gets written
 
-### Step 2: Break into GitHub Issues
+Voice dictation is still the best way to answer the interview questions. Planning is thinking—voice lets you externalize messy ideas without pre-editing.
 
-Once you're happy with the plan, ask Claude to:
+### Step 2: Write the Plan
 
-> "Break this plan into atomic chunks and post each chunk as a GitHub Issue."
+Once the interview is complete:
 
-Each issue should be:
-- **Single-scope**: One thing, done completely
-- **Independently shippable**: Could be merged on its own
-- **Sequenced**: Issues reference what comes before/after
+> "Break this project into sequential PRs. Write the plan to the `plans/` directory with instructions for autonomous execution."
 
-This creates a paper trail and—critically—clean context for the next step.
+Claude writes a plan doc to `plans/` (gitignored) containing:
+- **PR sequence**: ordered list of PRs, each with clear scope
+- **Per-PR scope**: what's included, what's explicitly excluded
+- **Autonomous instructions**: implement → `/simplify` → draft PR → pause for review → address feedback → open PR → wait for CI → update plan → next PR
 
-### Step 3: Reset Context, Then Implement
+For team-visible planning, also ask Claude to create GitHub Issues (the [strategic layer](./frameworks/02-context-engineering.md)).
 
-**Start a new chat.** This is non-negotiable.
+### Step 3: Autonomous Execution
 
-Your planning session filled the context window with brainstorming, dead ends, and outdated ideas. The GitHub Issue now contains the distilled plan. Point Claude at it:
+Claude works through the PR sequence in DSP mode (`--dangerously-skip-permissions`):
 
-> "Implement the feature described in Issue #42."
-
-The AI gets clean context. You get focused execution.
-
-**Optional: Add a tactical layer.** For complex features, add local tracking files:
-
-```bash
-# In your project directory
-setup-ralph              # Creates CLAUDE.md + progress.txt
-ralph-gh link 42         # Link to your GitHub Issue
-ralph-gh sync            # Generate PRD.md from issue
+```
+For each PR in the sequence:
+  1. Implement the feature
+  2. Run /simplify to clean up the code
+  3. Open a draft PR
+  4. ← You invoke GPT-5.4 code review via Codex MCP
+  5. Claude addresses the feedback
+  6. Open the PR, wait for CI
+  7. After merge: update plan doc with what shipped + context for next PR
+  8. Continue to next PR
 ```
 
-This gives you:
-- **PRD.md** — Atomic 15-30 min tasks broken down from the issue
-- **progress.txt** — Timestamped log of what Claude completed
+**Your intervention points:**
+- Reviewing GPT's code review findings (accept, reject, or discuss)
+- Merge decisions
+- Course corrections if the plan needs adjustment mid-project
 
-When context fills mid-implementation, Claude can read these files to resume exactly where it left off. See [Context Engineering](./frameworks/02-context-engineering.md) for the full two-layer approach.
+Everything else is autonomous.
 
-### Step 4: Review the PR
+### Step 4: Ship & Clean Up
 
-This is where you make sure you don't ship slop. Multiple rounds of review between you and Claude ensure quality—without requiring you to read every line of code.
+After the final PR merges:
+1. Post a summary on the GitHub Issue: planned vs. actual vs. learned
+2. Delete the plan doc from `plans/` — it's ephemeral working memory, not documentation
+3. Start fresh for the next project
 
-**The workflow:**
+---
 
-1. **Simplify the code.** Run [`/simplify-code`](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) to clean up and simplify the implementation. This skill refines the code for clarity, consistency, and maintainability before anyone sees it.
+## The Simple Flow (Single Features)
 
-2. **Open a draft PR.** Create a draft pull request—not ready for merge yet.
+For isolated features that don't need the full pipeline:
 
-3. **Run code review.** Invoke [`/code-review`](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) on the draft. This launches 4 parallel review agents that independently audit your changes from different angles: compliance with project guidelines, obvious bugs, and historical context. Each issue gets a confidence score, and only high-confidence issues (80+) surface.
+1. **Plan** — Describe the feature, let Claude ask clarifying questions
+2. **Issue** — Ask Claude to create a GitHub Issue with the distilled plan
+3. **Implement** — New session, point Claude at the Issue
+4. **Review** — Run `/simplify`, then delegate code review to GPT-5.4 via Codex MCP
 
-4. **Assess and address feedback.** Review the issues Claude found. Ask Claude to address the relevant feedback—not everything will apply, but the high-confidence issues usually do.
-
-5. **Open the PR.** Convert from draft to open. After multiple rounds of review, this should be easy for anyone to merge.
-
-**Why this works:** I'm not reading every line of code anymore—but I maintain an understanding of the high-level architecture. The multi-round review process (simplify → review → address → review again) catches the details. My job is understanding how features fit into the system, not parsing syntax.
-
-**Visual verification**: I also use [Greptile](https://app.greptile.com/signup?ref=NTM3MTUtMzY3OTU=) to automatically review PRs when I open them. It generates architecture diagrams and data flowcharts for each PR—so I can *see* how code changes flow through the system. This visual layer reinforces the [Comprehensible Code](./frameworks/01-comprehensible-code.md) principle at the architecture level.
+Same principles (explore → plan → implement → review), just lighter weight.
 
 ---
 
 ## The Mental Model
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   PLAN      │ ──▶ │   ISSUES    │ ──▶ │  IMPLEMENT  │ ──▶ │   REVIEW    │
-│  (messy)    │     │  (clean)    │     │  (focused)  │     │  (critical) │
-└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
-     voice              GitHub            new context          self + human
+┌─────────────┐     ┌─────────────┐     ┌─────────────────────────────────────┐
+│   EXPLORE   │ ──▶ │    PLAN     │ ──▶ │     AUTONOMOUS LOOP (per PR)        │
+│  & INTERVIEW│     │  (plans/)   │     │                                     │
+│             │     │             │     │  implement → simplify → GPT review  │
+│  standard   │     │  sequential │     │  → fix → open PR → CI → merge      │
+│  mode       │     │  PR docs    │     │  → update plan → next PR           │
+└─────────────┘     └─────────────┘     └─────────────────────────────────────┘
+     voice +             local                     DSP mode
+     exploration         gitignored                autonomous
 ```
 
-The key insight: **planning and execution require different contexts.** Don't make the AI implement a feature while it's still holding onto 47 messages about "what if we did it this other way instead?"
+The key insight: **planning and execution are separate phases, but execution is now autonomous.** You invest heavily in the interview and plan, then let Claude run. The quality gates (GPT review, CI checks) catch problems without requiring you to supervise every edit.
 
 ---
 
 ## Quick Tips
 
-- **Model**: Use Opus 4.5 for everything (planning, implementation, review). It suffers significantly less context degradation than other models.
-- **Output mode**: Turn on "[Explanatory](https://code.claude.com/docs/en/output-styles)" mode to learn from Claude's reasoning. It's like pair programming with someone who explains their thought process.
-- **Clear context**: Even with Opus, clear your context when a task is complete. Fresh context = focused AI.
-- **Provenance**: At the end of each implementation, ask Claude to summarize what was built vs. what was planned, and post it as a comment on the Issue. This creates a trail of planned work vs. actual work.
+- **Model**: Use Opus 4.6 (1M context) for everything. The 1M window handles the full autonomous loop without context degradation.
+- **DSP mode**: Enable `--dangerously-skip-permissions` for autonomous work. Alias the `claude` command to start in DSP mode by default.
+- **Plans directory**: Keep `plans/` in your `.gitignore`. Plans are agent working memory, not repo documentation.
+- **GPT delegation**: Invoke Codex MCP with GPT-5.4 High for code review between `/simplify` and PR open.
+- **Output mode**: Keep "[Explanatory](https://code.claude.com/docs/en/output-styles)" mode on to learn from Claude's reasoning during the interview phase.
+- **Provenance**: After each PR merges, ask Claude to update the plan doc with what actually shipped. After the project completes, post a summary on the GitHub Issue.
 
 ---
 
@@ -101,7 +110,7 @@ The key insight: **planning and execution require different contexts.** Don't ma
 
 Once you've internalized this loop, dive into the frameworks:
 - [Comprehensible Code](./frameworks/01-comprehensible-code.md) — Why understanding the code matters
-- [Context Engineering](./frameworks/02-context-engineering.md) — Managing the AI's memory
+- [Context Engineering](./frameworks/02-context-engineering.md) — Managing context across four layers
 - [Atomic Features](./frameworks/03-atomic-features.md) — Why small PRs compound
 
 The loop is the foundation. The frameworks are what make you good at it.

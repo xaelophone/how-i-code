@@ -6,19 +6,22 @@ Quick reference for effective AI communication.
 
 ## Planning Prompts
 
-**Start a planning session:**
+**Start a project (explore + interview):**
 ```
-I want to build [feature]. Let me explain what I'm thinking, then ask me any clarifying questions you might have.
-
-[describe your feature in natural language]
-```
-
-**Force clarification:**
-```
-Before we proceed, what assumptions are you making? What questions should I answer first?
+I want to build [project]. Explore the codebase to understand the current landscape,
+then interview me: ask about subgoals, implementation preferences, design constraints,
+and anything ambiguous. Don't start planning until the interview is complete.
 ```
 
-**Break into issues:**
+**Break into sequential PRs:**
+```
+Break this project into sequential PRs. Write the plan to the plans/ directory with:
+- Ordered PR sequence, each with clear scope
+- What's included and explicitly excluded per PR
+- Instructions for autonomous execution
+```
+
+**Break into GitHub Issues (for team visibility):**
 ```
 Break this plan into atomic chunks. Each chunk should be:
 - Single-scope (one thing, done completely)
@@ -26,6 +29,11 @@ Break this plan into atomic chunks. Each chunk should be:
 - Sequenced with dependencies noted
 
 Post each chunk as a GitHub Issue.
+```
+
+**Force clarification:**
+```
+Before we proceed, what assumptions are you making? What questions should I answer first?
 ```
 
 ---
@@ -132,6 +140,47 @@ Help me trace what happens when [action]. Start from [entry point] and walk thro
 ```
 I'm stuck on [problem]. Let me explain what I've tried, and help me think through what I might be missing.
 ```
+
+---
+
+## Reverse-Prompt Interview
+
+**Trigger a codebase exploration + interview:**
+```
+Explore the codebase based on [project goal]. Once you understand the landscape,
+interview me: ask about subgoals, implementation preferences, design constraints,
+and anything ambiguous. Don't start planning until the interview is complete.
+```
+
+This inverts the normal dynamic — instead of you prompting the AI, the AI prompts you. It surfaces questions you didn't know to ask.
+
+---
+
+## Bilingual Bug Explanation
+
+**Get developer + end-user framing:**
+```
+Explain this bug using non-technical language. Frame it from two perspectives:
+(1) what's happening in the system from a developer's view, and
+(2) what an end user would experience if this shipped.
+```
+
+This builds comprehension at the system level. When you can explain a bug in terms of customer impact, you actually understand the system.
+
+---
+
+## Autonomous PR Instructions
+
+**Set up the autonomous execution loop:**
+```
+Work autonomously through this plan. For each PR in the sequence: implement the
+feature, run /simplify, open a draft PR, then pause for code review. After review
+feedback is addressed, open the PR and wait for CI. Once merged, update the plan
+doc with what actually shipped and any context the next PR needs. Then continue
+to the next PR.
+```
+
+This prompt goes into your plan doc. It gives Claude the full autonomous instruction set.
 
 ---
 

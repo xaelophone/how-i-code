@@ -12,61 +12,59 @@ When you iterate on a feature plan, the context window fills with:
 
 By the time you say "okay, implement it," the AI is holding onto all of that noise. It gets confused. It references old ideas. It produces inconsistent code.
 
-## The Solution: Externalize, Then Reset
+## The Solution: Layered Context
 
-The fix is simple: **document the final plan outside the conversation, then start fresh.**
+The fix isn't just "reset and restart" anymore. It's managing context across four layers, each serving a different purpose.
 
-My workflow:
-1. **Plan in conversation** — messy, iterative, lots of back-and-forth
-2. **Externalize to GitHub Issues** — ask the AI to distill the plan into atomic issues
-3. **Clear context** — start a brand new chat
-4. **Implement from the issue** — the AI reads the clean, distilled plan
+## The Four-Layer Approach
 
-The GitHub Issue becomes the "source of truth." The planning conversation can be forgotten.
+| Layer | Where | Purpose | Lifecycle |
+|-------|-------|---------|-----------|
+| **Strategic** | GitHub Issues | Team visibility, stakeholder access, provenance trail | Permanent |
+| **Tactical** | `plans/` directory (gitignored) | Multi-PR project plans, autonomous agent working memory | Ephemeral—deleted when project ships |
+| **Persistent** | Claude Code MEMORY.md | Architecture decisions, gotchas, learned patterns | Automatic—persists across sessions |
+| **Ambient** | Plugins, skills, CLAUDE.md | Domain knowledge auto-injected when touching specific files | Always-on—no manual management |
 
-## Why GitHub Issues?
+### Strategic Layer (GitHub Issues)
 
-I used to have Claude create README files for features, migrations, even one-off tasks. My repo got littered with documentation that went stale immediately.
-
-GitHub Issues are better because:
-- **Progress tracking**: Issues have status, comments, references to PRs
-- **Cleaner repos**: Documentation lives in the right place (issues/PRs), not cluttering your codebase
-- **AI-friendly provenance**: When you need to revisit a feature, the Issue contains the plan, the implementation notes, and links to the actual code
-
-By November, this became my standard practice. I implemented 14 new features while *deleting* 6,000+ lines of code. That was only possible because I started treating git as the source of truth for context engineering.
-
-## The Two-Layer Approach
-
-I've since refined this into two complementary layers:
-
-| Layer | Where | Purpose |
-|-------|-------|---------|
-| **Strategic** | GitHub Issues | Team visibility, stakeholder access, cross-project planning, provenance trail |
-| **Tactical** | Local files (PRD.md + progress.txt) | Within-session task tracking, context recovery, granular progress |
-
-**Strategic layer (GitHub Issues):**
+This is where team-visible planning lives:
 - High-level feature planning
 - "What are we building this week?"
 - Comments preserve planned → actual → learned
 - Visible to team and stakeholders
 
-**Tactical layer (PRD.md + progress.txt):**
-- Granular 15-30 minute tasks
-- "What's Claude working on right now?"
-- Automatic context injection on session resume
-- Claude reads these directly (no API needed)
+### Tactical Layer (`plans/` directory)
 
-The workflow becomes:
-1. Plan feature → externalize to **GitHub Issue**
-2. Break issue into atomic tasks → **PRD.md**
-3. Claude works, logs to **progress.txt**
-4. Summarize phase → post comment on **Issue**
+This is where autonomous agent working memory lives:
+- Multi-PR project plans broken into sequential PRs
+- Instructions for autonomous execution (implement → simplify → review → merge → next)
+- Claude reads and updates these docs as it works through the sequence
+- **Gitignored and ephemeral** — deleted when the project ships
+- Exists purely as agent context, not documentation
 
-This lets you keep the benefits of GitHub (visibility, provenance, PR linking) while adding local files for the granular execution Claude needs. I built a tool called [ralph-gh](https://github.com/xaelophone/ralph-setup) that can bridge the two automatically.
+For single-feature work, GitHub Issues alone are sufficient. The `plans/` directory is for multi-PR projects where the agent needs structured working memory.
+
+### Persistent Layer (Claude Code Memory)
+
+Claude Code maintains MEMORY.md files that persist across sessions:
+- Architecture decisions ("Auth uses `jose`, not `jsonwebtoken`")
+- Gotchas and workarounds ("Supabase client doesn't expose AbortSignal")
+- Learned patterns ("Dev port is 5176, not the default")
+
+You don't manage these manually. Claude updates them as it learns. When you start a new session, Claude already knows what it learned last time.
+
+### Ambient Layer (Plugins, Skills, CLAUDE.md)
+
+This is context you never think about:
+- **CLAUDE.md** files at project root give Claude permanent project-level instructions
+- **Plugins** (Vercel, Supabase, Compound Engineering) auto-inject relevant documentation when you touch certain files or run certain commands
+- **Skills** (`/simplify`, code review, etc.) carry domain-specific knowledge
+
+The ambient layer means Claude has access to framework docs, platform conventions, and project rules without you providing them. It's context engineering that happens in the background.
 
 ## The Provenance Loop
 
-At the end of each implementation session, ask Claude:
+At the end of each implementation session—or when a PR merges—ask Claude:
 
 > "Summarize what we implemented. Note any divergences from the original plan and anything we learned. Post this as a comment on the GitHub Issue."
 
@@ -75,20 +73,23 @@ This creates a record:
 - **Actual**: What we actually built
 - **Learned**: What we discovered along the way
 
-When you implement Issue #2 in a sequence, the AI can read the comments on Issue #1 to understand what actually happened—not just what was planned.
+When you implement the next PR in a sequence, the AI can read the comments on previous Issues to understand what actually happened—not just what was planned.
 
 ## Context Hygiene Rules
 
-1. **One task, one context**: Don't implement multiple features in the same chat
-2. **Reset after planning**: Always start implementation in a fresh context
-3. **Clear after completion**: Even if you *could* continue, start fresh for the next task
-4. **Externalize decisions**: If you made an important decision, document it before clearing context
+1. **One project, one context**: Don't mix unrelated projects in the same session
+2. **Clear between projects**: When a project ships, start fresh for the next one
+3. **Let the plan doc be the anchor**: As long as Claude can reference the plan, it stays on track during long autonomous sessions
+4. **Trust persistent memory**: Architecture decisions carry over via MEMORY.md—you don't need to re-explain them
+5. **Externalize decisions**: If you made an important decision, it should land in a GitHub Issue comment, the plan doc, or MEMORY.md—not just in conversation
 
 ## When to Break the Rules
 
 Sometimes you need continuity. If you're debugging something that emerged *during* implementation, don't reset—you'll lose the debugging context. But as soon as you've resolved the issue, clear context and continue from a clean state.
 
-The goal isn't rigid process. It's recognizing that **context is a resource you manage**, not just something that accumulates.
+With the 1M context window on Opus 4.6, sessions can run much longer than before. The threshold for "time to clear" is now project boundaries, not message count.
+
+The goal isn't rigid process. It's recognizing that **context is a resource you manage across multiple layers**, not just something that accumulates in a single conversation.
 
 ---
 

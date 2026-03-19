@@ -13,6 +13,18 @@ Then edit to add the narrative paragraph explaining the "why" behind the change.
 
 ---
 
+## March 19, 2026
+
+**Autonomous PR sequencing, formalized delegation, and stack evolution**
+
+The biggest workflow shift since I started this repo. I now trust Claude Opus 4.6 (1M context) to work autonomously through multi-PR projects in `--dangerously-skip-permissions` mode. The workflow: explore the codebase, Claude interviews me about design decisions, then breaks the project into sequential PRs documented in a local `plans/` directory (gitignored, deleted when done). Claude works through each PR autonomously — implementing, running `/simplify`, opening draft PRs — then I delegate code review to GPT-5.4 High via Codex MCP. After review feedback is addressed and CI passes, Claude updates the plan and continues to the next PR.
+
+This required updates across the entire repo: the 4-step workflow is now an autonomous pipeline (QUICKSTART), context engineering expanded from two layers to four (strategic, tactical, persistent, ambient), Agent Phalanx evolved from an informal "groupchat" to a formalized delegation system with five GPT expert roles, the tech stack now documents two tiers (starter with Next.js, production with Vite + Express monorepos), model breakdowns updated to Opus 4.6 and GPT-5.4, and Cursor has been removed from the workflow entirely. Also added bilingual bug explanations (developer + end-user perspective) and new prompting patterns for reverse-prompt interviews and autonomous execution.
+
+**Files changed:** `QUICKSTART.md`, `tech-stack.md`, `README.md`, `frameworks/01-comprehensible-code.md`, `frameworks/02-context-engineering.md`, `frameworks/05-agent-phalanx.md`, `models/claude-opus-4-6.md` (new), `models/gpt-5-x.md`, `models/README.md`, `cheatsheets/claude-code-tips.md`, `cheatsheets/prompting-patterns.md`
+
+---
+
 ## January 27, 2026
 
 **Revised GPT-5.2 High assessment: trepidation as power**
